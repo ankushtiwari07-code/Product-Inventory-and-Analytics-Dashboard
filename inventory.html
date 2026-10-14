@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inventory Dashboard</title>
+</head>
+<body>
+  <h3>Inventory Dashboard</h3>
+  <p>Press F12 and open the Console tab to see the output.</p>
+
+  <script>
+    console.log("--- Initializing Inventory System ---");
+
+    // existing products
+    let products = [
+      { name: "Laptop", price: 800 },
+      { name: "Mouse", price: 25 }
+    ];
+
+    // function to get category using switch
+    function getCategory(price) {
+      let category;
+      switch (true) {
+        case price < 50:
+          category = "Budget";
+          break;
+        case price >= 500:
+          category = "Premium";
+          break;
+        default:
+          category = "Standard";
+      }
+      return category;
+    }
+
+    // ask user for a new product (max 3 tries)
+    let newName = "";
+    let newPrice = 0;
+    let added = false;
+
+    for (let i = 0; i < 3; i++) {
+      let nameInput = prompt("Enter product name:");
+      if (nameInput === null) {
+        break; // user pressed cancel
+      }
+      if (nameInput.trim() === "") {
+        console.log("Name is empty, try again");
+        continue;
+      }
+
+      let priceInput = prompt("Enter product price:");
+      if (priceInput === null) {
+        break;
+      }
+
+      // remove $ sign and convert to number
+      let price = Number(priceInput.replace("$", ""));
+
+      if (isNaN(price) || price <= 0) {
+        console.log("Invalid price, try again");
+        continue;
+      }
+
+      newName = nameInput.trim();
+      newPrice = price;
+      added = true;
+      break;
+    }
+
+    // check if product already exists
+    if (added) {
+      let exists = false;
+      for (let i = 0; i < products.length; i++) {
+        if (products[i].name.toLowerCase() === newName.toLowerCase()) {
+          exists = true;
+          break;
+        }
+      }
+
+      if (exists) {
+        console.log(newName + " already exists, not added");
+      } else {
+        products.push({ name: newName, price: newPrice });
+        console.log('[Prompt executed: User adds "' + newName + '" at "$' + newPrice + '"]');
+      }
+    } else {
+      console.log("No product was added");
+    }
+
+    // add category to every product
+    products.forEach(function (p) {
+      p.category = getCategory(p.price);
+    });
+
+    // regular function for total
+    function getTotal(list) {
+      let total = 0;
+      for (let i = 0; i < list.length; i++) {
+        total = total + list[i].price;
+      }
+      return total;
+    }
+
+    // arrow function for tax and discount
+    const finalPrice = (price, tax, discount) => {
+      let afterDiscount = price - price * discount;
+      return afterDiscount + afterDiscount * tax;
+    };
+
+    console.log("");
+    console.log("--- Processing Inventory Roster (forEach) ---");
+    products.forEach(function (p) {
+      console.log("* Item: " + p.name + " ($" + p.price + ") -> Category: " + p.category);
+    });
+
+    console.log("");
+    console.log("--- Financial Analytics ---");
+
+    let total = getTotal(products);
+    console.log("Total Inventory Value: $" + total);
+
+    // filter items under 200, then map to names
+    let affordable = products
+      .filter(p => p.price < 200)
+      .map(p => p.name);
+    console.log("Filtered Affordable Items (Under $200):", affordable);
+
+    // map for the report
+    let report = products.map(p => p.name.toUpperCase() + ": $" + p.price);
+    console.log("Formatted Report List:", report);
+
+    // total with 8% tax and 10% discount
+    console.log("Total after tax and discount: $" + finalPrice(total, 0.08, 0.10).toFixed(2));
+  </script>
+</body>
+</html>
